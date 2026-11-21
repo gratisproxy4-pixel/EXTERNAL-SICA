@@ -64,6 +64,8 @@ struct ThreeOneOSFiveApp: App {
                     .zIndex(1)
                 }
             }
+            .preferredColorScheme(.dark)
+.tint(SouzaiColor.red)
             .displayIdentityAttribution(isPresented: $showAttribution, enabled: !showOnboarding)
             .sheet(isPresented: $showAttribution) {
                 DisplayAttributionSheet()
