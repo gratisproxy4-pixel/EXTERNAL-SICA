@@ -1,53 +1,42 @@
 import SwiftUI
 
 enum AppTheme {
-    static let accent = Color(
-        uiColor: UIColor { traits in
-            traits.userInterfaceStyle == .dark
-                ? UIColor(red: 1.00, green: 0.64, blue: 0.42, alpha: 1.00)
-                : UIColor(red: 0.85, green: 0.42, blue: 0.20, alpha: 1.00)
-        }
-    )
-    static let pageBackground = Color(uiColor: .systemBackground)
-    static let consoleBackground = Color(uiColor: .secondarySystemBackground)
+    static let accent = SouzaiColor.red
+    static let pageBackground = SouzaiColor.background
+    static let consoleBackground = SouzaiColor.surfaceAlt
+
     static let pageInset: CGFloat = 16
-    static let rowIconSize: CGFloat = 17
-    static let rowIconFrame: CGFloat = 28
-    static let fileRowIconSize: CGFloat = 17
-    static let fileRowIconFrame: CGFloat = 30
-    static let fileRowHeight: CGFloat = 60
-    static let appIconSize: CGFloat = 32
+    static let rowIconSize: CGFloat = 16
+    static let rowIconFrame: CGFloat = 34
+    static let fileRowIconSize: CGFloat = 16
+    static let fileRowIconFrame: CGFloat = 32
+    static let fileRowHeight: CGFloat = 58
+    static let appIconSize: CGFloat = 34
     static let emptyIconSize: CGFloat = 30
     static let selectionIconSize: CGFloat = 18
-    static let contentCardCornerRadius: CGFloat = 20
+    static let contentCardCornerRadius: CGFloat = 14
     static let contentCardInset: CGFloat = 16
-    static let contentCardPadding: CGFloat = 16
+    static let contentCardPadding: CGFloat = 14
 }
 
 struct AppCardBorder: View {
     var body: some View {
-        RoundedRectangle(
-            cornerRadius: AppTheme.contentCardCornerRadius,
-            style: .continuous
-        )
-        .strokeBorder(
-            Color(uiColor: .separator).opacity(0.22),
-            lineWidth: 0.5
-        )
-        .accessibilityHidden(true)
+        RoundedRectangle(cornerRadius: AppTheme.contentCardCornerRadius, style: .continuous)
+            .strokeBorder(SouzaiColor.border, lineWidth: 1)
+            .accessibilityHidden(true)
     }
 }
 
 struct AppRowIcon: View {
     let systemName: String
-    var tint: Color = AppTheme.accent
+    var tint: Color = SouzaiColor.red
     var symbolSize: CGFloat = AppTheme.rowIconSize
     var frameSize: CGFloat = AppTheme.rowIconFrame
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(tint.opacity(0.12))
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(SouzaiColor.chip)
             Image(systemName: systemName)
                 .font(.system(size: symbolSize, weight: .medium))
                 .foregroundStyle(tint)
@@ -66,11 +55,13 @@ struct AppSearchField: View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(SouzaiColor.textSecondary)
                 .accessibilityHidden(true)
 
-            TextField(prompt, text: $text)
-                .font(.body)
+            TextField("", text: $text, prompt: Text(prompt).foregroundStyle(SouzaiColor.textTertiary))
+                .font(.system(size: 15))
+                .foregroundStyle(SouzaiColor.textPrimary)
+                .tint(SouzaiColor.red)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .submitLabel(.search)
@@ -81,21 +72,22 @@ struct AppSearchField: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(SouzaiColor.textTertiary)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(clearLabel)
             }
         }
         .padding(.horizontal, 11)
-        .frame(minHeight: 36)
-        .background(
-            Color(uiColor: .secondarySystemFill),
-            in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-        )
+        .frame(minHeight: 38)
+        .background(SouzaiColor.surface, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(SouzaiColor.border, lineWidth: 1)
+        }
         .padding(.horizontal, AppTheme.pageInset)
         .padding(.vertical, 8)
-        .background(.bar)
+        .background(SouzaiColor.background)
     }
 }
 
@@ -115,11 +107,15 @@ struct AppLogo: View {
                     .font(.title2.weight(.semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(AppTheme.accent)
+                    .background(SouzaiColor.red)
             }
         }
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: size * 0.22, style: .continuous)
+                .strokeBorder(SouzaiColor.borderDeep, lineWidth: 1)
+        }
         .accessibilityHidden(true)
     }
 }
