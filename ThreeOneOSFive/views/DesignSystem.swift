@@ -119,3 +119,8 @@ struct AppLogo: View {
         .accessibilityHidden(true)
     }
 }
+extension SouzaiColor {
+    static let insetH: CGFloat = 16
+}
+
+
