@@ -9,37 +9,10 @@ struct ContentView: View {
     @EnvironmentObject private var repositoryStore: PackageRepositoryStore
     @AppStorage(FeatureVisibility.developerModeStorageKey)
     private var developerModeEnabled = false
-    @State private var tabNavigation: AppTabNavigationState
+    @State private var tabNavigation = AppTabNavigationState()
+    @State private var selectedTab: SouzaiTab = .principal
     @State private var showSettings = false
     @State private var showLogs = false
-
-    init() {
-#if targetEnvironment(simulator)
-        let arguments = ProcessInfo.processInfo.arguments
-        let initialTab: Int
-        if arguments.contains("--simulate-new-tab") {
-            initialTab = 1
-        } else if arguments.contains("--simulate-sources-tab") {
-            initialTab = 2
-        } else if arguments.contains("--simulate-installed-tab")
-                    || arguments.contains("--simulate-patch-tab")
-                    || arguments.contains("--simulate-wallpaper-tab") {
-            initialTab = 3
-        } else if arguments.contains("--simulate-files-tab") {
-            initialTab = 4
-        } else if arguments.contains("--simulate-search-tab") {
-            initialTab = 5
-        } else {
-            initialTab = 0
-        }
-        _tabNavigation = State(initialValue: AppTabNavigationState(selectedTab: initialTab))
-        _showSettings = State(
-            initialValue: arguments.contains("--simulate-settings")
-        )
-#else
-        _tabNavigation = State(initialValue: AppTabNavigationState())
-#endif
-    }
 
     var body: some View {
         Group {
@@ -49,19 +22,14 @@ struct ContentView: View {
                 compactLayout
             }
         }
-        .tint(AppTheme.accent)
+        .tint(SouzaiColor.red)
+        .preferredColorScheme(.dark)
         .imageScale(.small)
-        .onChange(of: patchDraftCoordinator.request?.id) { requestID in
-            if requestID != nil { tabNavigation.select(AppSection.installed.rawValue) }
+        .onChange(of: patchDraftCoordinator.request?.id) { id in
+            if id != nil { selectedTab = .visual }
         }
-        .onChange(of: patchDraftCoordinator.importRequest?.id) { requestID in
-            if requestID != nil { tabNavigation.select(AppSection.installed.rawValue) }
-        }
-        .onChange(of: developerModeEnabled) { _ in
-            tabNavigation.reconcileSelection(with: featureVisibility)
-        }
-        .onAppear {
-            tabNavigation.reconcileSelection(with: featureVisibility)
+        .onChange(of: patchDraftCoordinator.importRequest?.id) { id in
+            if id != nil { selectedTab = .visual }
         }
         .sheet(isPresented: $showSettings) { SettingsView() }
         .sheet(isPresented: $showLogs) { LogView() }
@@ -70,174 +38,139 @@ struct ContentView: View {
     }
 
     private var compactLayout: some View {
-        TabView(selection: tabSelection) {
-            ForEach(featureVisibility.visibleSections) { section in
-                sectionContent(section)
-                    .tabItem {
-                        CompactTabLabel(
-                            title: language.text(section.titleKey),
-                            systemImage: section.systemImage
-                        )
-                    }
-                    .tag(section.rawValue)
-            }
+        ZStack {
+            SouzaiColor.background.ignoresSafeArea()
+
+            content(for: selectedTab)
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    SouzaiBanner()
+                        .padding(.horizontal, SouzaiColor.insetH)
+                        .padding(.top, 6)
+                        .padding(.bottom, 6)
+                        .background(SouzaiColor.background)
+                }
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    tabBar
+                        .padding(.horizontal, SouzaiColor.insetH)
+                        .padding(.bottom, 6)
+                        .background(SouzaiColor.background)
+                }
         }
     }
 
     private var regularLayout: some View {
         NavigationSplitView {
             List {
-                ForEach(featureVisibility.visibleSections) { section in
+                ForEach(SouzaiTab.visible(developerMode: developerModeActive)) { item in
                     Button {
-                        withAnimation(.easeInOut(duration: 0.18)) {
-                            tabNavigation.select(section.rawValue)
-                        }
+                        withAnimation(.easeInOut(duration: 0.18)) { selectedTab = item }
                     } label: {
-                        Label(language.text(section.titleKey), systemImage: section.systemImage)
-                            .fontWeight(section.rawValue == tabNavigation.selectedTab ? .semibold : .regular)
+                        Label(item.title, systemImage: item.icon)
+                            .fontWeight(selectedTab == item ? .semibold : .regular)
+                            .foregroundStyle(SouzaiColor.textPrimary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .listRowBackground(
-                        section.rawValue == tabNavigation.selectedTab
-                            ? AppTheme.accent.opacity(0.14)
-                            : Color.clear
+                        selectedTab == item ? SouzaiColor.red.opacity(0.14) : Color.clear
                     )
-                    .accessibilityAddTraits(
-                        section.rawValue == tabNavigation.selectedTab ? .isSelected : []
-                    )
+                    .listRowSeparatorTint(SouzaiColor.border)
+                    .accessibilityAddTraits(selectedTab == item ? .isSelected : [])
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(SouzaiColor.background)
             .navigationTitle("3105")
             .navigationSplitViewColumnWidth(min: 210, ideal: 240, max: 300)
         } detail: {
-            sectionContent(selectedVisibleSection)
-                .id(selectedVisibleSection.rawValue)
+            content(for: selectedTab)
+                .id(selectedTab)
         }
         .navigationSplitViewStyle(.balanced)
     }
 
     @ViewBuilder
-    private func sectionContent(_ section: AppSection) -> some View {
-        switch section {
-        case .home:
-            RepositoryHomeView(
-                onOpenSettings: openSettings,
-                onOpenLogs: openLogs
-            )
-        case .new:
-            RepositoryNewView(
-                onOpenSettings: openSettings,
-                onOpenLogs: openLogs
-            )
-        case .sources:
-            RepositorySourcesView(
-                onOpenSettings: openSettings,
-                onOpenLogs: openLogs
-            )
-        case .installed:
-            PatchProjectsView(
-                onOpenSettings: openSettings,
-                onOpenLogs: openLogs
-            )
-        case .files:
+    private func content(for tab: SouzaiTab) -> some View {
+        switch tab {
+        case .principal:
+            RepositoryHomeView(onOpenSettings: { showSettings = true }, onOpenLogs: { showLogs = true })
+        case .visual:
+            PatchProjectsView(onOpenSettings: { showSettings = true }, onOpenLogs: { showLogs = true })
+        case .perfil:
+            SouzaiProfileView(onOpenSettings: { showSettings = true })
+        case .arquivos:
             AppDataBrowserView(
-                tabSession: filesTabSession,
-                onOpenSettings: openSettings,
-                onOpenLogs: openLogs
-            )
-        case .search:
-            RepositorySearchView(
-                onOpenSettings: openSettings,
-                onOpenLogs: openLogs
+                tabSession: Binding(
+                    get: { tabNavigation.filesTabs },
+                    set: { tabNavigation.setFilesTabs($0) }
+                ),
+                onOpenSettings: { showSettings = true },
+                onOpenLogs: { showLogs = true }
             )
         }
     }
 
-    private var tabSelection: Binding<Int> {
-        Binding(
-            get: { tabNavigation.selectedTab },
-            set: { tabNavigation.select($0) }
-        )
-    }
-
-    private var filesTabSession: Binding<FilesTabSession> {
-        Binding(
-            get: { tabNavigation.filesTabs },
-            set: { tabNavigation.setFilesTabs($0) }
-        )
-    }
-
-    private var featureVisibility: FeatureVisibility {
-        FeatureVisibility(developerModeEnabled: developerModeActive)
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(SouzaiTab.visible(developerMode: developerModeActive)) { item in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.18)) { selectedTab = item }
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: item.icon).font(.system(size: 18, weight: .medium))
+                        Text(item.title).font(.system(size: 10.5, weight: .semibold))
+                    }
+                    .foregroundStyle(selectedTab == item ? SouzaiColor.red : SouzaiColor.textTertiary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selectedTab == item ? .isSelected : [])
+            }
+        }
+        .background(SouzaiColor.surfaceAlt, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color(hex: 0x221618), lineWidth: 1)
+        }
     }
 
     private var developerModeActive: Bool {
 #if targetEnvironment(simulator)
-        developerModeEnabled
-            || ProcessInfo.processInfo.arguments.contains("--simulate-developer-mode")
-            || ProcessInfo.processInfo.arguments.contains("--simulate-files-tab")
+        developerModeEnabled || ProcessInfo.processInfo.arguments.contains("--simulate-developer-mode")
 #else
         developerModeEnabled
 #endif
     }
-
-    private var selectedVisibleSection: AppSection {
-        let selected = AppSection(rawValue: tabNavigation.selectedTab)
-        return selected.flatMap {
-            featureVisibility.isVisible($0) ? $0 : nil
-        } ?? .home
-    }
-
-    private func openSettings() {
-        showSettings = true
-    }
-
-    private func openLogs() {
-        showLogs = true
-    }
 }
 
-private struct CompactTabLabel: View {
-    let title: String
-    let systemImage: String
+enum SouzaiTab: Int, CaseIterable, Identifiable {
+    case principal, visual, perfil, arquivos
 
-    @ViewBuilder
-    var body: some View {
-        if let image = UIImage(
-            systemName: systemImage,
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)
-        )?.withRenderingMode(.alwaysTemplate) {
-            Image(uiImage: image)
-        } else {
-            Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .medium))
-        }
-        Text(title)
-    }
-}
+    var id: Int { rawValue }
 
-private extension AppSection {
-    var titleKey: String {
+    var title: String {
         switch self {
-        case .home: return "tab.home"
-        case .new: return "tab.new"
-        case .sources: return "tab.sources"
-        case .installed: return "tab.installed"
-        case .files: return "tab.files"
-        case .search: return "tab.search"
+        case .principal: return "Principal"
+        case .visual: return "Visual"
+        case .perfil: return "Perfil"
+        case .arquivos: return "Arquivos"
         }
     }
 
-    var systemImage: String {
+    var icon: String {
         switch self {
-        case .home: return "house.fill"
-        case .new: return "clock.fill"
-        case .sources: return "shippingbox.fill"
-        case .installed: return "tray.full.fill"
-        case .files: return "folder.fill"
-        case .search: return "magnifyingglass"
+        case .principal: return "house.fill"
+        case .visual: return "tray.full.fill"
+        case .perfil: return "person.fill"
+        case .arquivos: return "folder.fill"
         }
+    }
+
+    /// Tres pestañas como el diseño; Archivos solo con modo desarrollador.
+    static func visible(developerMode: Bool) -> [SouzaiTab] {
+        developerMode ? allCases : [.principal, .visual, .perfil]
     }
 }

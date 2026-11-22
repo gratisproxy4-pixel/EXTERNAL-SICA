@@ -459,7 +459,7 @@ struct RepositoryPackageDetailView: View {
         }
         .padding(18)
         .background(
-            Color(uiColor: .systemBackground),
+            SouzaiColor.background
             in: RoundedRectangle(
                 cornerRadius: AppTheme.contentCardCornerRadius,
                 style: .continuous
@@ -646,7 +646,7 @@ struct RepositoryPackageDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(AppTheme.contentCardPadding)
                 .background(
-                    Color(uiColor: .systemBackground),
+                    SouzaiColor.background
                     in: RoundedRectangle(
                         cornerRadius: AppTheme.contentCardCornerRadius,
                         style: .continuous
@@ -897,9 +897,9 @@ private struct RepositoryScreenshotPreview: View {
     var body: some View {
         ZStack {
             if imageLoader.image == nil {
-                Color(uiColor: .secondarySystemFill)
+                SouzaiColor.chip
             } else {
-                Color(uiColor: .systemBackground)
+                SouzaiColor.background
             }
 
             if let image = imageLoader.image {

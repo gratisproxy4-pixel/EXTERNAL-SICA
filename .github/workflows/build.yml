@@ -1,0 +1,19 @@
+name: Build IPA
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Unsigned IPA
+        run: |
+          xcodebuild -project ThreeOneOSFive.xcodeproj -scheme ThreeOneOSFive -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/ThreeOneOSFive.app Payload/
+          zip -r ThreeOneOSFive.ipa Payload
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThreeOneOSFive-IPA
+          path: ThreeOneOSFive.ipa

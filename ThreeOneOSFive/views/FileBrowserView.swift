@@ -1614,7 +1614,7 @@ private struct FileSelectionActionBar: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
-        .background(.bar)
+        .background(SouzaiColor.background)
         .overlay(alignment: .top) { Divider() }
         .disabled(selectedCount == 0)
     }
@@ -1671,7 +1671,7 @@ private struct FilePasteBar: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
-        .background(.bar)
+        .background(SouzaiColor.background)
         .overlay(alignment: .top) { Divider() }
     }
 }

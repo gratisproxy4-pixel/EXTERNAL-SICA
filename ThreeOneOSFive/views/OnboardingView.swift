@@ -197,7 +197,7 @@ struct OnboardingView: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(
-                    Color(uiColor: .secondarySystemBackground),
+                    SouzaiColor.surface
                     in: RoundedRectangle(cornerRadius: 8, style: .continuous)
                 )
         }
@@ -256,7 +256,7 @@ struct OnboardingView: View {
                 }
                 .padding(12)
                 .background(
-                    Color(uiColor: .secondarySystemBackground),
+                    SouzaiColor.surface
                     in: RoundedRectangle(cornerRadius: 10, style: .continuous)
                 )
             }
@@ -293,7 +293,7 @@ struct OnboardingView: View {
             }
             .padding(14)
             .background(
-                Color(uiColor: .secondarySystemBackground),
+                SouzaiColor.surface
                 in: RoundedRectangle(cornerRadius: 10, style: .continuous)
             )
 
@@ -381,7 +381,7 @@ struct OnboardingView: View {
         .padding(.top, 12)
         .padding(.bottom, 10)
         .frame(maxWidth: .infinity)
-        .background(.bar)
+        .background(SouzaiColor.background)
         .overlay(alignment: .top) {
             Divider()
         }
