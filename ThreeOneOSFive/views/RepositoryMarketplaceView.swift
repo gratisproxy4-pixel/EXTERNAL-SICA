@@ -459,7 +459,7 @@ struct RepositoryPackageDetailView: View {
         }
         .padding(18)
         .background(
-            SouzaiColor.background
+             SouzaiColor.background,
             in: RoundedRectangle(
                 cornerRadius: AppTheme.contentCardCornerRadius,
                 style: .continuous
@@ -646,7 +646,7 @@ struct RepositoryPackageDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(AppTheme.contentCardPadding)
                 .background(
-                    SouzaiColor.background
+                     SouzaiColor.background,
                     in: RoundedRectangle(
                         cornerRadius: AppTheme.contentCardCornerRadius,
                         style: .continuous
