@@ -1614,7 +1614,7 @@ private struct FileSelectionActionBar: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
-        .background(.bar)
+        .background(SouzaiColor.background)
         .overlay(alignment: .top) { Divider() }
         .disabled(selectedCount == 0)
     }
