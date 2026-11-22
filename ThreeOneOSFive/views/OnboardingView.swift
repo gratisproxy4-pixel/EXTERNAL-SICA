@@ -381,7 +381,7 @@ struct OnboardingView: View {
         .padding(.top, 12)
         .padding(.bottom, 10)
         .frame(maxWidth: .infinity)
-        .background(.bar)
+        .background(SouzaiColor.background)
         .overlay(alignment: .top) {
             Divider()
         }
