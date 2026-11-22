@@ -1671,7 +1671,7 @@ private struct FilePasteBar: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
-        .background(.bar)
+        .background(SouzaiColor.background)
         .overlay(alignment: .top) { Divider() }
     }
 }
