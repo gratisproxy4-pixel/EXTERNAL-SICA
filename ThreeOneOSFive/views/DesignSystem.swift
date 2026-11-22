@@ -46,6 +46,7 @@ struct AppRowIcon: View {
     }
 }
 
+@available(iOS 17.0, *)
 struct AppSearchField: View {
     @Binding var text: String
     let prompt: String
