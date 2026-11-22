@@ -175,8 +175,6 @@ enum SouzaiTab: Int, CaseIterable, Identifiable {
     }
 }
 
-import SwiftUI
-
 struct SouzaiProfileView: View {
     let onOpenSettings: () -> Void
     @State private var key = SouzaiProfileView.makeKey()
