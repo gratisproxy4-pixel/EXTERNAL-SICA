@@ -897,7 +897,7 @@ private struct RepositoryScreenshotPreview: View {
     var body: some View {
         ZStack {
             if imageLoader.image == nil {
-                Color(uiColor: .secondarySystemFill)
+                SouzaiColor.chip
             } else {
                 SouzaiColor.background
             }
