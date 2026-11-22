@@ -197,7 +197,7 @@ struct OnboardingView: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(
-                    Color(uiColor: .secondarySystemBackground),
+                    SouzaiColor.surface
                     in: RoundedRectangle(cornerRadius: 8, style: .continuous)
                 )
         }
