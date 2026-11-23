@@ -130,7 +130,7 @@ struct RepositoryHomeView: View {
                     }
                 }
                 .background(
-                    SouzaiColor.background
+                     SouzaiColor.background,
                     in: RoundedRectangle(
                         cornerRadius: AppTheme.contentCardCornerRadius,
                         style: .continuous
@@ -170,7 +170,7 @@ struct RepositoryHomeView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 48)
         .background(
-            SouzaiColor.background
+             SouzaiColor.background,
             in: RoundedRectangle(
                 cornerRadius: AppTheme.contentCardCornerRadius,
                 style: .continuous

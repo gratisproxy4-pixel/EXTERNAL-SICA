@@ -8,9 +8,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build Unsigned IPA
         run: |
-          xcodebuild -project ThreeOneOSFive.xcodeproj -scheme ThreeOneOSFive -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          SCHEME=$(xcodebuild -project ThreeOneOSFive.xcodeproj -list -json | python3 -c "import sys,json; print(json.load(sys.stdin)['project']['schemes'][0])")
+          xcodebuild -project ThreeOneOSFive.xcodeproj -scheme "$SCHEME" -configuration Release -sdk iphoneos -derivedDataPath build  IPHONEOS_DEPLOYMENT_TARGET=17.0 CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           mkdir -p Payload
-          cp -r build/Build/Products/Release-iphoneos/ThreeOneOSFive.app Payload/
+          cp -r build/Build/Products/Release-iphoneos/*.app Payload/
           zip -r ThreeOneOSFive.ipa Payload
       - name: Upload IPA
         uses: actions/upload-artifact@v4
